@@ -33,7 +33,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=raw,value=latest,enable={{is_default_branch_or_tag}}
+            type=raw,value=latest,enable=true
 
       - name: Build & push (multi-arch)
         uses: docker/build-push-action@v5
