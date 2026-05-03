@@ -1,0 +1,36 @@
+# binaries / build output
+/autoscaler
+/bin/
+*.exe
+*.test
+*.out
+
+# coverage
+coverage.out
+coverage.html
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+*Zone.Identifier
+
+# secrets — local development only
+.env
+.env.local
+*.pem
+*.key
+kubeconfig
+*.kubeconfig
+
+# project-internal docs (not part of the public autoscaler distribution)
+DEPLOYMENT_ROADMAP_KAMATERA.md
+DEPLOYMENT_ROADMAP_*.md
+RELEASE_VERIFICATION.md
+
+# native E2E — local debugging only, never committed
+/test/
+
+# ad-hoc
+/tmp/

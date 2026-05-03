@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: go test
+        run: go test -race -coverprofile=coverage.out ./...
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.out
+          retention-days: 7
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - uses: golangci/golangci-lint-action@v6
+        with:
+          version: v2.12
+
+  secrets-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject committed credentials
+        run: |
+          set -euo pipefail
+          # Match real-looking values for KAMATERA_API_SECRET / KAMATERA_API_CLIENT_ID;
+          # placeholders like "replace_me" are allowed.
+          if grep -REn '^(KAMATERA_API_(SECRET|CLIENT_ID))=[A-Za-z0-9._-]{12,}' . \
+              --include='*.env' --include='*.yaml' --include='*.yml' --include='*.go' --include='*.md' \
+              --exclude-dir='.git' \
+              | grep -v -E 'replace_me|<.*>|example|placeholder'; then
+            echo "::error::looks like a real credential is committed"
+            exit 1
+          fi

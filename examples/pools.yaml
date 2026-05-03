@@ -1,0 +1,34 @@
+# Example autoscaler configuration. The autoscaler is provider-agnostic about
+# what runs inside the VM — it just provisions Kamatera servers with the
+# cloud-init script you supply. Adjust the names, sizes, and selectors to your
+# cluster.
+
+datacenter: EU-FR
+vlan_name: example-vlan         # private VLAN name as defined in Kamatera; leave blank to skip a private NIC
+server_ip: 10.0.0.20            # control-plane IP exposed to cloud-init as {{ .ServerIP }}
+cloud_init_template: ./examples/cloud-init.tpl
+
+pools:
+  - name: general
+    cpu_type: B                 # A | B | D | T (see Kamatera CPU class docs)
+    cpu_cores: 2
+    ram_mb: 4096
+    disk_gb: 40
+    image: ubuntu_server_24.04_64-bit
+    min_nodes: 1
+    max_nodes: 4
+    node_labels: pool=general
+    node_taints: ""
+    pod_selector: pool=general
+
+  - name: gpu-pool
+    cpu_type: D
+    cpu_cores: 4
+    ram_mb: 8192
+    disk_gb: 60
+    image: ubuntu_server_24.04_64-bit
+    min_nodes: 0
+    max_nodes: 3
+    node_labels: pool=gpu-pool,workload=gpu
+    node_taints: dedicated=gpu:NoSchedule
+    pod_selector: workload=gpu
